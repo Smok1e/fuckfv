@@ -1,6 +1,6 @@
-import json, logging, re, requests, traceback
+import json, logging, re, requests, traceback, datetime
 from lks_api import LksApi
-import datetime
+from zoneinfo import ZoneInfo
 
 #========================================
 
@@ -60,7 +60,8 @@ def sign_up_best_group(config):
 	for group in groups:
 		group["datetime"] = datetime.datetime.combine(
 			datetime.date.fromisoformat(group["date"]),
-			datetime.time.fromisoformat(group["timeStart"])
+			datetime.time.fromisoformat(group["timeStart"]),
+			tzinfo = ZoneInfo(config["tails"]["timezone"])
 		)
 
 	group = sorted(groups, key = lambda group: group["datetime"], reverse = True)[0]
@@ -72,9 +73,6 @@ def sign_up_best_group(config):
 		raise SignUpError(f"Response status is {data["status"]}: {json.dumps(data)}")
 
 	return group, data["message"]
-		# (
-		# f"'{group["comment"]}' ({group["id"]}), {group["date"]} {group["timeStart"]}; {group["occupied"]}/{group["capacity"]} occupied",
-		# data["message"])
 
 def main():
 	with open("config.json", "rb") as file:
